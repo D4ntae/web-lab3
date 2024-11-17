@@ -115,6 +115,9 @@ class Paddle {
         let ctx = gameArea.context;
 
         ctx.fillStyle = this.color;
+        ctx.shadowColor = "black";
+        ctx.shadowBlur = 3;
+        ctx.shadowOffsetY = 1;
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 
