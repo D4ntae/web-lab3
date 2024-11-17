@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="style.css" rel="stylesheet">
+    </head>
+    <script src="index.js"></script>
+    <body onload="defaultSettings()">
+        <div id="form-container">
+            <h2>Postavke</h2>
+            <form id="settings-form">
+                <div class="form-group">
+                    <label for="brzina-lopatice">Brzina Lopatice</label>
+                    <input type="number" id="brzina-lopatice" name="brzina-lopatice" placeholder="Unesite brzinu lopatice" required min="1">
+                </div>
+                <div class="form-group">
+                    <label for="brzina-loptice">Brzina Loptice</label>
+                    <input type="number" id="brzina-loptice" name="brzina-loptice" placeholder="Unesite brzinu loptice" required min="1">
+                </div>
+                <div class="form-group">
+                    <label for="cigle-po-redu">Cigle po Redu</label>
+                    <input type="number" id="cigle-po-redu" name="cigle-po-redu" placeholder="Unesite broj cigli po redu" required min="1">
+                </div>
+                <div class="form-group">
+                    <label for="redovi">Redovi</label>
+                    <input type="number" id="redovi" name="redovi" placeholder="Unesite broj redova" required min="1">
+                </div>
+                <div class="form-group">
+                    <button type="submit">Pokreni</button>
+                </div>
+            </form>
+        </div>
+        <div id="game-over" class="screen game-over">
+            <h1>Game Over :(</h1>
+            <button onclick="retryGame()">Igraj ponovo</button>
+        </div>
+
+        <div id="game-win" class="screen game-win">
+            <h1>You Win! :)</h1>
+            <button onclick="retryGame()">Igraj ponovo</button>
+        </div>
+    </body>
+</html>
