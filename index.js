@@ -1,3 +1,6 @@
+/*
+ * Instancira igru tako da stvori sve potrebne objekte i namjesti razmak između cigli da lijepo izgledaju na ekranu.
+ */
 function startGame() {
     gameArea.start();
     elements.paddle = new Paddle(125, 15, 'red');
@@ -13,6 +16,9 @@ function startGame() {
     }
 }
 
+/*
+ * Glavna tick funkcija igre. Svaki put ponovo crta sve elemente igre i pomiče lopticu (ta funkcija radi provjeru kolizije).
+ */
 function updateGameArea() {
     gameArea.clear();
     if (config.momentum > 0) {
@@ -45,6 +51,9 @@ function updateGameArea() {
     }
 }
 
+/*
+ * Slušatelji za kretanje palice koju ju pomiću u dobro smjeru ovisno o pritisnutoj strelici.
+ */
 document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowLeft') {
         elements.paddle.moveLeft();
@@ -59,6 +68,9 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
+/*
+ * Struktura koja definira glavnu strukturu igre. Prati canvas na kojem se sve crta i registrira tick funkciju. Uzeto manje više s prezentacije.
+ */
 let gameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
@@ -112,6 +124,9 @@ class Paddle {
         }
     }
 
+    /*
+     * Provjera kolizije palice i loptice.
+     */
     checkBall(x, y) {
         return (x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height)
     }
@@ -119,8 +134,8 @@ class Paddle {
 
 class Brick {
     constructor(i, j, width, height, color) {
-        this.i = i;
-        this.j = j;
+        this.i = i; // indeks reda u kojem se cigla nalazi
+        this.j = j; // indeks stupca u kojem se cigla nalazi
         this.width = width;
         this.height = height;
         this.color = color;
@@ -135,6 +150,9 @@ class Brick {
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 
+    /*
+     * Provjera kolizije nalazi li se neki x i y unutar cigle i ako se nalazi makni ciglu iz liste cigli. Malo miksa odgovornosti u kodu, ali jednostavno je :)
+     */
     checkBall(x, y) {
         if (x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height) {
             elements.bricks[this.i][this.j] = undefined;
@@ -147,28 +165,28 @@ class Brick {
 
 class Ball {
     constructor(r, color) {
-        this.r = r;
+        this.r = r; // radius
         this.color = color;
         this.x = elements.paddle.x + elements.paddle.width / 2;
         this.y = elements.paddle.y;
-        this.vector = {
+        this.vector = { // vektor kretanja, za vizualizaciju je moguće uključiti vecOn opciju u config strukturi.
             start: [this.x, this.y],
             end: [this.x - 50 * (Math.pow(-1, Number(Math.random() > 0.5)) * (Math.random() * 0.5 + 0.3)), this.y - 50 * Math.random()]
         }
     }
 
+    /*
+     * Funkcija normalizira vektor. Koristi se za pretvaranje vektora kretanja u jedinični vektor.
+     */
     normalise(point) {
         let size = Math.sqrt(point[0] * point[0] + point[1] * point[1])
         return [point[0] / size, point[1] / size];
     }
 
-    getUnitVec() {
-        return {
-            start: this.normalise(this.vector.start),
-            end: this.normalise(this.vector.end)
-        }
-    }
-   
+    /*
+     * Funkcija koja se pokreće svaki tick igre i koja pokušava pomaknuti lopticu i detektira kolizije kako bi znala kako pomaknuti lopticu.
+     * Normalizira vektor kretanja i izračuna kako pomaknuti lopticu bazirano na njemu. Ako bi se desila kolizija okrene lopticu u suportnom smjeru.
+     */
     move() {
         let normal = this.normalise([(this.vector.end[0] - this.vector.start[0]), (this.vector.end[1] - this.vector.start[1])])
         let new_x = Math.trunc(config.ballSpeed * normal[0]);
@@ -177,20 +195,20 @@ class Ball {
             new_y = 10;
         }
 
-        // Collision detection
-        if (this.x + new_x <= 0) { // left wall
+        // Kolizija
+        if (this.x + new_x <= 0) { // lijevi zid
             new_x = -new_x;
-        } else if (this.x + new_x >= gameArea.canvas.width) { // right wall
+        } else if (this.x + new_x >= gameArea.canvas.width) { // desni zid
             new_x = -new_x;
-        } else if (this.y + new_y <= 0) { // roof
+        } else if (this.y + new_y <= 0) { // krov
             new_y = -new_y;
-        } else if (elements.paddle.checkBall(this.x + new_x, this.y + new_y)) { // paddle
+        } else if (elements.paddle.checkBall(this.x + new_x, this.y + new_y)) { // palica
             new_y = -new_y;
             new_x += Math.trunc(config.momentum * config.paddleSpeed / 10);
-        } else if (this.y + new_y >= gameArea.canvas.height) {
+        } else if (this.y + new_y >= gameArea.canvas.height) { // dno ekrana
             endGame();
         } else {
-            // brick collision check
+            // cigle
             for (let brick of elements.bricks.flat()) {
                 if (brick != undefined) {
                     if (brick.checkBall(this.x, this.y)) {
@@ -227,6 +245,9 @@ class Ball {
     }
 }
 
+/*
+ * Funkcija uzima vrijednosti iz forme na početnom ekranu i pokreće igru.
+ */
 function setupGame(e) {
     e.preventDefault();
 
@@ -245,6 +266,9 @@ function setupGame(e) {
     startGame();
 }
 
+/*
+ * Funkcija postavlja početne postavke u formu na početnom ekranu.
+ */
 function defaultSettings() {
     let paddleSpeed = document.getElementById("brzina-lopatice");
     paddleSpeed.value = config.paddleSpeed;
@@ -291,13 +315,18 @@ function retryGame() {
     config.brickGap = 5;
 }
 
-
+/*
+ * Ova struktura služi kao svojevrsna memorija za igru i prati na jednom mjestu sve elemente koji se koriste u igri.
+ */
 let elements = {
     paddle: undefined,
     ball: undefined,
     bricks: [],
 }
 
+/*
+ * Ova struktura definira osnovne podatke o igri od koji su većina konfigurabilni u početnom ekrenu.
+ */
 let config = {
     paddleSpeed: 30,
     ballSpeed: 12,
@@ -306,6 +335,6 @@ let config = {
     rows: 3,
     brickGap: 5,
     verticalGap: 5,
-    momentum: 0
+    momentum: 0 // Prati moment palice kako bi se loptica prirodnije kretala. Ako palica ide brzo u lijevu ponijet će lopticu više u lijevo.
 }
 
