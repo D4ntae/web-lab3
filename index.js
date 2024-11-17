@@ -43,7 +43,13 @@ function updateGameArea() {
 
     let curr = elements.bricks.flat().filter(b => b != undefined).length;
     let max = config.bricksPerRow * config.rows;
-    ctx.fillText(`Score: ${max - curr}/${max}`, gameArea.canvas.width - 125, 20);
+    let best = localStorage.getItem("score");
+    if (best == undefined) {
+        best = 0;
+    }
+    ctx.fillText(`Score: ${max - curr}`, gameArea.canvas.width - 125, 20);
+    ctx.fillText(`Best score: ${best}`, gameArea.canvas.width - 125, 45);
+
 
     if (curr == 0) {
         winGame();
@@ -113,13 +119,13 @@ class Paddle {
     }
 
     moveLeft() {
-        if (this.x - config.paddleSpeed >= -10) {
+        if (this.x >= 0) {
             this.x -= config.paddleSpeed;
         }
     }
 
     moveRight() {
-        if (this.x + config.paddleSpeed + this.width <= gameArea.canvas.width + 10) {
+        if (this.x + this.width <= gameArea.canvas.width) {
             this.x += config.paddleSpeed;
         }
     }
@@ -140,7 +146,7 @@ class Brick {
         this.height = height;
         this.color = color;
         this.x = (this.j + 1) * config.brickGap + (this.j * this.width);
-        this.y = (this.i + 1) * config.verticalGap + ((this.i + 1) * this.height);
+        this.y = (this.i + 1) * config.verticalGap + ((this.i + 2) * this.height);
     }
 
     draw() {
@@ -286,7 +292,20 @@ function defaultSettings() {
     form.addEventListener("submit", setupGame);
 }
 
+function storeScore() {
+    let curr = elements.bricks.flat().filter(b => b == undefined).length;
+    let old = localStorage.getItem("score");
+    if (old == undefined) {
+        localStorage.setItem("score", curr)
+    } else {
+        if (old < curr) {
+            localStorage.setItem("score", curr);
+        }
+    }
+}
+
 function endGame() {
+    storeScore();
     gameArea.stop();
     gameArea.clear();
     document.getElementById("game-over").style.display = "block";
@@ -295,6 +314,7 @@ function endGame() {
 }
 
 function winGame() {
+    storeScore();
     gameArea.stop();
     gameArea.clear();
     document.getElementById("game-over").style.display = "none";
